@@ -43,7 +43,7 @@ st.markdown("""
 col1, col2, col3 = st.columns([2, 2 ,1])
 with col2:
     if st.button("ENTER"):
-        st.success("Launching game... 🚀") #make this switch the state instead of this prompt
+        st.switch_page("pages-menu.py") #make this switch the state instead of this prompt
 
 left, center, right = st.columns([2, 3, 1])
 with center:
