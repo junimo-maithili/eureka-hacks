@@ -1,4 +1,5 @@
 import tensorflow as tf
+import streamlit as st
 
 from keras.api.layers import DepthwiseConv2D
 from keras.api import layers
@@ -33,63 +34,49 @@ custom_objects = {
 # Load the model with custom layer handling
 model = load_model("converted_keras/keras_Model.h5", compile=False, custom_objects=custom_objects)
 
-
-
-# Load the model with custom objects
-#model = load_model("converted_keras/keras_Model.h5", compile=False, custom_objects=custom_objects)
-
-
-# Load the model with custom layer handling
-model = load_model("converted_keras/keras_Model.h5", compile=False, custom_objects=custom_objects)
-
-
-
-
-
-"""
-Load the model
-model = load_model("converted_keras/keras_Model.h5", compile=False)
-#/Users/maithilir/Downloads\eureka_hacks\converted_keras\keras_Model.h5
-"""
-
 # Load the labels
 class_names = open("converted_keras/labels.txt", "r").readlines()
 
 # CAMERA can be 0 or 1 based on default camera of your computer
 camera = cv2.VideoCapture(1)
 
+img_file_buffer = st.camera_input(f"Take a picture!")
+
+
 while True:
-    # Grab the webcamera's image.
-    ret, image = camera.read()
 
-    # Resize the raw image into (224-height,224-width) pixels
-    image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_AREA)
+    if img_file_buffer is not None: 
+        bytes_data = img_file_buffer.getvalue()
+        cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+        image = cv2.resize(cv2_img, (224, 224), interpolation=cv2.INTER_AREA)
+        image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
+        image = (image / 127.5) - 1
+        probabilities = model.predict(image)
 
-    # Show the image in a window
-    cv2.imshow("Webcam Image", image)
+        # Predicts the model
+        prediction = model.predict(image)
+        index = np.argmax(prediction)
+        class_name = class_names[index]
+        confidence_score = prediction[0][index]
 
-    # Make the image a numpy array and reshape it to the models input shape.
-    image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
+        if np.round(confidence_score * 100) > 80:
+            # Print prediction and confidence score
+            st.write("Class:", class_name[2:], end="")
+        else:
+            st.write("YOU DON'T WORK YOU USELESS COW!!!!")
+        #st.write("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
 
-    # Normalize the image array
-    image = (image / 127.5) - 1
+        # Listen to the keyboard for presses.
+        keyboard_input = cv2.waitKey(1)
 
-    # Predicts the model
-    prediction = model.predict(image)
-    index = np.argmax(prediction)
-    class_name = class_names[index]
-    confidence_score = prediction[0][index]
-
-    # Print prediction and confidence score
-    print("Class:", class_name[2:], end="")
-    print("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
-
-    # Listen to the keyboard for presses.
-    keyboard_input = cv2.waitKey(1)
-
-    # 27 is the ASCII for the esc key on your keyboard.
-    if keyboard_input == 27:
-        break
+        # 27 is the ASCII for the esc key on your keyboard.
+        if keyboard_input == 27:
+            break
 
 camera.release()
 cv2.destroyAllWindows()
+
+
+# Function to identify element
+def image_giver():
+    pass
