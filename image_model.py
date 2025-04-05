@@ -9,7 +9,22 @@ import cv2  # Install opencv-python
 import numpy as np
 
 
+
+st.markdown('''<div style="text-align: center; font-size: 36px; font-weight: bold; color: #FFFFFF; font-family: 'Tahoma', cursive;">「touch-grass.exe｣</div>''', unsafe_allow_html=True)
+page_element="""
+<style>
+[data-testid="stAppViewContainer"]{
+  background-image: url("https://i.redd.it/rjq8tvxntq3c1.jpeg");
+  background-size: cover;
+}
+</style>
+"""
+
+st.markdown(page_element, unsafe_allow_html=True)
+
+
 cooldown = False
+
 
 # Disable scientific notation for clarity
 np.set_printoptions(suppress=True)
@@ -26,7 +41,8 @@ class CustomDepthwiseConv2D(layers.DepthwiseConv2D):
     def __init__(self, **kwargs):
         # Remove unsupported `groups` argument if it exists
         if 'groups' in kwargs:
-            kwargs.pop('groups')
+            if kwargs:
+                kwargs.pop('groups')
         super().__init__(**kwargs)
 
 
@@ -69,13 +85,29 @@ while True:
             if cooldown == False:
                 # Print prediction
                 st.write("Class:" + str(class_name[2:]))
-                st.session_state.level+=20
-                cooldown = True
-            else:
-                st.write("Wait!")
+                print(str(class_name[2:]) + "AAAAAAA")
+                result = str(class_name[2:])
+                if result == "trees\n":
+                    st.session_state.hunger += 20
+                    st.write("You found some food in the trees! +20 hunger")
+                if result == "leaves\n":
+                    st.session_state.happiness += 20
+                    st.write("You had some fun in the leaves! +20 fun")
+                if result == "grass\n":
+                    st.session_state.thirst += 20
+                    st.write("You found some food in the trees! +20 thirst")
+                #st.session_state.level+=1
+                ph = st.empty()
+                N = 5*60
+                for secs in range(N,0,-1):
+                    mm, ss = secs//60, secs%60
+                    ph.metric("Spend some time with your pet! Image will resume in...", f"{mm:02d}:{ss:02d}")
+                    time.sleep(1)
+
 
         else:
-            st.write("YOU DON'T WORK YOU USELESS COW!!!!")
+            st.write("Couldn't identify the image. Take a clearer picture!")
+                
         #st.write("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
 
         # Listen to the keyboard for presses.
@@ -85,7 +117,6 @@ while True:
         if keyboard_input == 27:
             break
 
-    time.sleep(10)
 
 camera.release()
 cv2.destroyAllWindows()
@@ -94,3 +125,11 @@ cv2.destroyAllWindows()
 # Function to identify element
 def image_giver():
     pass
+
+
+with st.container(height=220):
+    level_bar = st.progress(st.session_state.level, text="Level: %i" % st.session_state.level)
+    hunger_bar = st.progress(st.session_state.hunger,text="Hunger: %i" %st.session_state.hunger)
+    thirst_bar = st.progress(st.session_state.thirst,text="Thirst: %i" %st.session_state.thirst)
+    happiness_bar = st.progress(st.session_state.happiness,text="Happiness: %i" %st.session_state.happiness)
+
