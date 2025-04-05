@@ -1,11 +1,15 @@
 import tensorflow as tf
 import streamlit as st
+import time
 
 from keras.api.layers import DepthwiseConv2D
 from keras.api import layers
 from keras.api.models import load_model  # TensorFlow is required for Keras to work
 import cv2  # Install opencv-python
 import numpy as np
+
+
+cooldown = False
 
 # Disable scientific notation for clarity
 np.set_printoptions(suppress=True)
@@ -43,6 +47,8 @@ camera = cv2.VideoCapture(1)
 img_file_buffer = st.camera_input(f"Take a picture!")
 
 
+
+
 while True:
 
     if img_file_buffer is not None: 
@@ -60,8 +66,14 @@ while True:
         confidence_score = prediction[0][index]
 
         if np.round(confidence_score * 100) > 80:
-            # Print prediction and confidence score
-            st.write("Class:", class_name[2:], end="")
+            if cooldown == False:
+                # Print prediction
+                st.write("Class:" + str(class_name[2:]))
+                st.session_state.level+=20
+                cooldown = True
+            else:
+                st.write("Wait!")
+
         else:
             st.write("YOU DON'T WORK YOU USELESS COW!!!!")
         #st.write("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
@@ -72,6 +84,8 @@ while True:
         # 27 is the ASCII for the esc key on your keyboard.
         if keyboard_input == 27:
             break
+
+    time.sleep(10)
 
 camera.release()
 cv2.destroyAllWindows()
