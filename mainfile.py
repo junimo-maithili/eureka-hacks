@@ -6,11 +6,13 @@ def init_session_state():
     if 'level' not in st.session_state:
         st.session_state.level = 0
     if 'hunger' not in st.session_state:
-        st.session_state.hunger = 0
+        st.session_state.hunger = 30
     if 'thirst' not in st.session_state:
-        st.session_state.thirst = 0
+        st.session_state.thirst = 30
     if 'happiness' not in st.session_state:
-        st.session_state.happiness = 0
+        st.session_state.happiness = 30
+    if 'currency' not in st.session_state:
+        st.session_state.currency = 30
 
 init_session_state()
 
@@ -21,9 +23,10 @@ st.write("")
 def bars():    
     if 'counter' not in st.session_state:
         st.session_state.level = 0
-        st.session_state.hunger = 0
-        st.session_state.thirst = 0
-        st.session_state.happiness = 0
+        st.session_state.hunger = 30
+        st.session_state.thirst = 30
+        st.session_state.happiness = 30
+        st.session_state.currency = 30
 
 import streamlit as st
 
