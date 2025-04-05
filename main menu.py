@@ -1,4 +1,5 @@
 import streamlit as st
+from PIL import Image
 
 st.markdown('''<div style="text-align: center; font-size: 36px; font-weight: bold; color: #FFFFFF; font-family: 'Tahoma', cursive;">「touch-grass.exe｣</div>''', unsafe_allow_html=True)
 page_element="""
@@ -44,3 +45,7 @@ with col2:
     if st.button("ENTER"):
         st.success("Launching game... 🚀") #make this switch the state instead of this prompt
 
+left, center, right = st.columns([2, 3, 1])
+with center:
+    image = Image.open("fox.png")
+    st.image(image, use_container_width=False, width=300)
